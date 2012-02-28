@@ -3,82 +3,58 @@ package be.khleuven.nieuws;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.cookie.Cookie;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.protocol.HTTP;
-import org.apache.http.util.EntityUtils;
-
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 
 public class KHLNieuwsActivity extends Activity {
-    /** Called when the activity is first created. */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
-    }
-    
 
-    DefaultHttpClient httpclient = new DefaultHttpClient();
-    try {
-        HttpGet httpget = new HttpGet("https://portal.sun.com/portal/dt");
+	private List<Message> messages;
+	private List<String> categories = new ArrayList<String>();
 
-        HttpResponse response = httpclient.execute(httpget);
-        HttpEntity entity = response.getEntity();
+	/** Called when the activity is first created. */
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.main);
 
-        System.out.println("Login form get: " + response.getStatusLine());
-        EntityUtils.consume(entity);
+		loadFeed();
+		getAllCategories();
+		sortByCategory();
 
-        System.out.println("Initial set of cookies:");
-        List<Cookie> cookies = httpclient.getCookieStore().getCookies();
-        if (cookies.isEmpty()) {
-            System.out.println("None");
-        } else {
-            for (int i = 0; i < cookies.size(); i++) {
-                System.out.println("- " + cookies.get(i).toString());
-            }
-        }
+	}
 
-        HttpPost httpost = new HttpPost("https://portal.sun.com/amserver/UI/Login?" +
-                "org=self_registered_users&" +
-                "goto=/portal/dt&" +
-                "gotoOnFail=/portal/dt?error=true");
+	private void getAllCategories() {
+		categories.clear();
+		for(Message m: messages){
+			if(!categories.contains(m.getCategory())){
+				categories.add(m.getCategory());
+			}
+		}
+		
+	}
 
-        List <NameValuePair> nvps = new ArrayList <NameValuePair>();
-        nvps.add(new BasicNameValuePair("IDToken1", "username"));
-        nvps.add(new BasicNameValuePair("IDToken2", "password"));
+	private void sortByCategory() {
+		for(String c : categories){
+			System.out.println(c);
+			for(Message m: messages){
+				if(c.equals(m.getCategory())){
+					System.out.println(m.getTitle());
+				}
+			}
+		}
+	}
 
-        httpost.setEntity(new UrlEncodedFormEntity(nvps, HTTP.UTF_8));
-
-        response = httpclient.execute(httpost);
-        entity = response.getEntity();
-
-        System.out.println("Login form get: " + response.getStatusLine());
-        EntityUtils.consume(entity);
-
-        System.out.println("Post logon cookies:");
-        cookies = httpclient.getCookieStore().getCookies();
-        if (cookies.isEmpty()) {
-            System.out.println("None");
-        } else {
-            for (int i = 0; i < cookies.size(); i++) {
-                System.out.println("- " + cookies.get(i).toString());
-            }
-        }
-
-    } finally {
-        // When HttpClient instance is no longer needed,
-        // shut down the connection manager to ensure
-        // immediate deallocation of all system resources
-        httpclient.getConnectionManager().shutdown();
-    }
+	public void loadFeed() {
+		String feedUrl = "https://portaal.khleuven.be/rss.php";
+		DomFeedParser parser = new DomFeedParser(feedUrl);
+		long start = System.currentTimeMillis();
+		messages = parser.parse();
+		long duration = System.currentTimeMillis() - start;
+		Log.i("AndroidNews", "Parser duration=" + duration);
+		for (Message m : messages) {
+			System.out.println(m.toString());
+		}
+	}
 
 }
