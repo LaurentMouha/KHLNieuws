@@ -40,6 +40,9 @@ public class KHLNieuwsActivity extends Activity {
 			for(Message m: messages){
 				if(c.equals(m.getCategory())){
 					System.out.println(m.getTitle());
+//					if(categories.size()>15){
+//						categories.clear();
+//					}
 				}
 			}
 		}
