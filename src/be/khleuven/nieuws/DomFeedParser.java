@@ -76,12 +76,18 @@ public class DomFeedParser extends BaseFeedParser {
 						}
 						message.setDescription(text.toString());
 					} else if (name.equalsIgnoreCase(PUB_DATE)) {
-						// message.setDate(property.getFirstChild().getNodeValue());
-						System.out.println(property.getFirstChild()
-								.getNodeValue());
+						message.setDate(property.getFirstChild().getNodeValue());
+						//System.out.println(property.getFirstChild()
+							//	.getNodeValue());
 
 					} else if (name.equalsIgnoreCase(CATEGORY)) {
-						message.setCategory(property.getFirstChild().getNodeValue());
+						
+						String title = "";
+						NodeList titlelist = property.getChildNodes();
+						for (int k = 0; k < titlelist.getLength(); k++) {
+							title += titlelist.item(k).getNodeValue();
+						}
+						message.setCategory(title);
 						//System.out.println(property.getFirstChild()
 							//	.getNodeValue());
 					} else if (name.equalsIgnoreCase(AUTHOR)) {

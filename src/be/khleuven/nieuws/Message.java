@@ -5,12 +5,15 @@ import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import android.text.Html;
 
 public class Message implements Comparable<Message>{
+	static Locale locale = Locale.ENGLISH;
 	static SimpleDateFormat FORMATTER = 
-		new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z");
+		new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", locale);
+	
 	private String title;
 	private URL link;
 	private String description;
