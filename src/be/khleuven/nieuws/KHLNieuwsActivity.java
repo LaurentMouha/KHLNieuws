@@ -7,25 +7,29 @@ import java.util.List;
 import android.app.ExpandableListActivity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Html;
 import android.util.Log;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Gravity;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
-import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 import android.widget.TextView;
-import android.widget.Toast;
 
+/**
+ * @author Laurent Mouha, Robin Vrebos en Bram Miermans
+ * 
+ */
 public class KHLNieuwsActivity extends ExpandableListActivity {
 
+	/**
+	 * Linkt de ExpandableListView met de data
+	 */
 	ExpandableListAdapter mAdapter;
+	/**
+	 * De url van de feed.
+	 */
 	String feedUrl;
 
 	/** Called when the activity is first created. */
@@ -38,29 +42,19 @@ public class KHLNieuwsActivity extends ExpandableListActivity {
 		((MyExpandableListAdapter) mAdapter).populate(feedUrl);
 		setListAdapter(mAdapter);
 		registerForContextMenu(getExpandableListView());
-		
+
 	}
 
-	/*@Override
-	public void onCreateContextMenu(ContextMenu menu, View v,
-			ContextMenuInfo menuInfo) {
-		menu.setHeaderTitle("Sample menaaau");
-		menu.add(0, 0, 0, R.string.app_name);
-	}*/
-	
 	@Override
 	public boolean onChildClick(ExpandableListView parent, View v,
 			int groupPosition, int childPosition, long id) {
-		
+
 		Message m = (Message) mAdapter.getChild(groupPosition, childPosition);
-		Toast.makeText(KHLNieuwsActivity.this,
-				Html.fromHtml(m.toString()),
-				Toast.LENGTH_LONG).show();
-		System.out.println("Stop clicking meeee");
-		
-		/* start nieuwe intent voor detailspagina
+
+		/*
+		 * start nieuwe intent voor detailspagina
 		 */
-		
+
 		Intent intent = new Intent(getApplicationContext(),
 				KHLDetailsActivity.class);
 		intent.putExtra("title", m.getTitle());
@@ -68,51 +62,30 @@ public class KHLNieuwsActivity extends ExpandableListActivity {
 		intent.putExtra("cat", m.getCategory());
 		intent.putExtra("auth", m.getAuthor());
 		intent.putExtra("descr", m.getDescription());
-		//intent.putExtra("link", m.getLink().toString());
 		startActivity(intent);
-		
+
 		return true;
 	}
 
-
-	@Override
-	public boolean onContextItemSelected(MenuItem item) {
-		ExpandableListContextMenuInfo info = (ExpandableListContextMenuInfo) item
-				.getMenuInfo();
-
-		String title = ((TextView) info.targetView).getText().toString();
-
-		int type = ExpandableListView
-				.getPackedPositionType(info.packedPosition);
-		if (type == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
-			int groupPos = ExpandableListView
-					.getPackedPositionGroup(info.packedPosition);
-			int childPos = ExpandableListView
-					.getPackedPositionChild(info.packedPosition);
-			/*Toast.makeText(
-					this,
-					title + ": Child " + childPos + " clicked in group "
-							+ groupPos, Toast.LENGTH_SHORT).show();*/
-			Message m = (Message) mAdapter.getChild(groupPos, childPos);
-			Toast.makeText(this, m.getDescription(), Toast.LENGTH_LONG).show();
-			return true;
-		} else if (type == ExpandableListView.PACKED_POSITION_TYPE_GROUP) {
-			int groupPos = ExpandableListView
-					.getPackedPositionGroup(info.packedPosition);
-			Toast.makeText(this, title + ": Group " + groupPos + " clicked",
-					Toast.LENGTH_SHORT).show();
-			return true;
-		}
-
-		return false;
-	}
-
+	/**
+	 * @author Laurent Mouha, Robin Vrebos en Bram Miermans
+	 * 
+	 */
 	public class MyExpandableListAdapter extends BaseExpandableListAdapter {
 
+		/**
+		 * Alle berichten, ongeordend.
+		 */
 		private List<Message> messages;
+		/**
+		 * Alle categorien.
+		 */
 		private List<String> groups = new ArrayList<String>();
+		/**
+		 * Lijst die lijst van berichten per categorie bevat
+		 */
 		private List<List<Message>> children = new ArrayList<List<Message>>();
-		
+
 		public Object getChild(int groupPosition, int childPosition) {
 			return children.get(groupPosition).get(childPosition);
 		}
@@ -178,7 +151,10 @@ public class KHLNieuwsActivity extends ExpandableListActivity {
 		public boolean hasStableIds() {
 			return true;
 		}
-		
+
+		/**
+		 * Verwijdert alle categorie‘n uit de lijst en vult ze dan opnieuw in op basis van de berichten die er zijn.
+		 */
 		private void getAllCategories() {
 			groups.clear();
 			groups.add("5 newest");
@@ -190,6 +166,10 @@ public class KHLNieuwsActivity extends ExpandableListActivity {
 
 		}
 
+		/**
+		 * Sorteert de berichten per categorie en vult de bijbehorende lijst in.
+		 * 
+		 */
 		private void sortByCategory() {
 			children.clear();
 			List<Message> temp = new ArrayList<Message>();
@@ -199,39 +179,38 @@ public class KHLNieuwsActivity extends ExpandableListActivity {
 			}
 			children.add(temp);
 
-			// int pos = 0;
 			for (String c : groups) {
 				temp = new ArrayList<Message>();
-				System.out.println("==" + c + "==");
 				for (Message m : messages) {
 					if (c.equals(m.getCategory())) {
 						temp.add(m);
-						System.out.println(m.getTitle());
 					}
 				}
-				if (temp.size()>0) {
+				if (temp.size() > 0) {
 					children.add(temp);
 				}
-				// children.set(pos, temp);
-				// pos++;
 			}
 		}
 
+		/**
+		 * Laadt de rss-feed in, roept de parser aan en  vult de berichtenlijst in.
+		 * @param feedUrl De url van de feed.
+		 */
 		public void loadFeed(String feedUrl) {
-			if(feedUrl==null || feedUrl.equals("")){
+			if (feedUrl == null || feedUrl.equals("")) {
 				feedUrl = "https://portaal.khleuven.be/rss.php";
-				//feedUrl = "https://portaal.khleuven.be/rss.php?user=511726&key=293e531a4545407844de7e4be73616a1c1278697";
 			}
 			DomFeedParser parser = new DomFeedParser(feedUrl);
 			long start = System.currentTimeMillis();
 			messages = parser.parse();
 			long duration = System.currentTimeMillis() - start;
 			Log.i("AndroidNews", "Parser duration=" + duration);
-			for (Message m : messages) {
-				System.out.println(m.toString());
-			}
 		}
 
+		/**
+		 * Laadt de rss-feed in, zoekt de categori‘n en sorteert per categorie.
+		 * @param feedUrl De url van de feed.
+		 */
 		public void populate(String feedUrl) {
 			loadFeed(feedUrl);
 			getAllCategories();

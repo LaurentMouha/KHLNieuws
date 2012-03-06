@@ -15,12 +15,21 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+/**
+ * @author Laurent Mouha, Robin Vrebos, Bram Miermans
+ * 
+ */
 public class DomFeedParser extends BaseFeedParser {
 
 	protected DomFeedParser(String feedUrl) {
 		super(feedUrl);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see be.khleuven.nieuws.FeedParser#parse()
+	 */
 	public List<Message> parse() {
 		List<Message> messages = new ArrayList<Message>();
 		try {
@@ -32,43 +41,42 @@ public class DomFeedParser extends BaseFeedParser {
 			HttpURLConnection httpConnection = (HttpURLConnection) connection;
 			HttpURLConnection.setFollowRedirects(true);
 			httpConnection.setInstanceFollowRedirects(true);
-			int responseCode = httpConnection.getResponseCode();
 			Document dom = null;
 
 			InputStream in = httpConnection.getInputStream();
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			DocumentBuilder db = dbf.newDocumentBuilder();
 
-			// falls over here parsing the xml.
 			dom = db.parse(in);
 
 			Element root = dom.getDocumentElement();
 			if (root == null) {
 				root = dom.getDocumentElement();
 			}
-			NodeList nl = root.getChildNodes();
-			printChildren(nl);
 			NodeList items = root.getElementsByTagName(ITEM);
+			//elk item afgaan
 			for (int i = 0; i < items.getLength(); i++) {
 				Message message = new Message();
 				Node item = items.item(i);
 				NodeList properties = item.getChildNodes();
+				// elk kind van het betreffende item afgaan
 				for (int j = 0; j < properties.getLength(); j++) {
 					Node property = properties.item(j);
 					String name = property.getNodeName();
 
 					if (name.equalsIgnoreCase(TITLE)) {
+						// titel inlezen. 
 						String title = "";
 						NodeList titlelist = property.getChildNodes();
 						for (int k = 0; k < titlelist.getLength(); k++) {
 							title += titlelist.item(k).getNodeValue();
 						}
 						message.setTitle(title);
-						// message.setTitle(property.getFirstChild()
-						// .getNodeValue());
 					} else if (name.equalsIgnoreCase(LINK)) {
+						// link inlezen
 						message.setLink(property.getFirstChild().getNodeValue());
 					} else if (name.equalsIgnoreCase(DESCRIPTION)) {
+						// omschrijving inlezen.
 						StringBuilder text = new StringBuilder();
 						NodeList chars = property.getChildNodes();
 						for (int k = 0; k < chars.getLength(); k++) {
@@ -76,24 +84,22 @@ public class DomFeedParser extends BaseFeedParser {
 						}
 						message.setDescription(text.toString());
 					} else if (name.equalsIgnoreCase(PUB_DATE)) {
+						// datum inlezen
 						message.setDate(property.getFirstChild().getNodeValue());
-						//System.out.println(property.getFirstChild()
-							//	.getNodeValue());
-
-					} else if (name.equalsIgnoreCase(CATEGORY)) {
 						
+					} else if (name.equalsIgnoreCase(CATEGORY)) {
+						// categorie inlezen
 						String title = "";
 						NodeList titlelist = property.getChildNodes();
 						for (int k = 0; k < titlelist.getLength(); k++) {
 							title += titlelist.item(k).getNodeValue();
 						}
 						message.setCategory(title);
-						//System.out.println(property.getFirstChild()
-							//	.getNodeValue());
+	
 					} else if (name.equalsIgnoreCase(AUTHOR)) {
-						message.setAuthor(property.getFirstChild().getNodeValue());
-						//System.out.println(property.getFirstChild()
-							//	.getNodeValue());
+						// auteur inlezen
+						message.setAuthor(property.getFirstChild()
+								.getNodeValue());
 
 					}
 				}
@@ -105,16 +111,4 @@ public class DomFeedParser extends BaseFeedParser {
 		return messages;
 	}
 
-	private void printChildren(NodeList nl) {
-		for (int i = 0; i < nl.getLength(); i++) {
-			/*
-			 * System.out.println(nl.item(i).getNodeName() + "-=-" +
-			 * nl.item(i).getNodeValue() + "-=-" + nl.item(i).getNodeType());
-			 */
-
-			if (nl.item(i).hasChildNodes()) {
-				printChildren(nl.item(i).getChildNodes());
-			}
-		}
-	}
 }

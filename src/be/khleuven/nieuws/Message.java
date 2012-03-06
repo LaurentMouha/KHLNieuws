@@ -7,13 +7,25 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import android.text.Html;
-
-public class Message implements Comparable<Message>{
+public class Message implements Comparable<Message> {
+	/**
+	 * Wordt gebruikt om de datum juist te kunnen inlezen. De datum staat in een
+	 * engelstalige notatie en heeft bijgevolg een engelstalige locale nodig.
+	 */
 	static Locale locale = Locale.ENGLISH;
-	static SimpleDateFormat FORMATTER = 
-		new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", locale);
-	
+	/**
+	 * Formatter die gebruikt wordt om de ingelezen datum-string om te zetten
+	 * naar een Date.
+	 */
+	static SimpleDateFormat FORMATTER = new SimpleDateFormat(
+			"EEE, dd MMM yyyy HH:mm:ss Z", locale);
+	/**
+	 * Formatter die gebruikt wordt om de Date om te zetten naar een leesbaar
+	 * formaat ("dd/MM/yyyy HH:mm").
+	 */
+	static SimpleDateFormat FORMATTER2 = new SimpleDateFormat(
+			"dd/MM/yyyy HH:mm");
+
 	private String title;
 	private URL link;
 	private String description;
@@ -44,11 +56,11 @@ public class Message implements Comparable<Message>{
 	public void setTitle(String title) {
 		this.title = title;
 	}
-	// getters and setters omitted for brevity 
+
 	public URL getLink() {
 		return link;
 	}
-	
+
 	public void setLink(String link) {
 		try {
 			this.link = new URL(link);
@@ -66,13 +78,12 @@ public class Message implements Comparable<Message>{
 	}
 
 	public String getDate() {
-		//return FORMATTER.format(this.date);
-		return "00:00 20:200";
+		return FORMATTER2.format(this.date);
 	}
 
 	public void setDate(String date) {
-		// pad the date if necessary
-		while (!date.endsWith("00")){
+		// toevoegen van nullen indien nodig.
+		while (!date.endsWith("00")) {
 			date += "0";
 		}
 		try {
@@ -81,8 +92,8 @@ public class Message implements Comparable<Message>{
 			throw new RuntimeException(e);
 		}
 	}
-	
-	public Message copy(){
+
+	public Message copy() {
 		Message copy = new Message();
 		copy.title = title;
 		copy.link = link;
@@ -90,7 +101,7 @@ public class Message implements Comparable<Message>{
 		copy.date = date;
 		return copy;
 	}
-	
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -125,7 +136,7 @@ public class Message implements Comparable<Message>{
 		result = prime * result + ((title == null) ? 0 : title.hashCode());
 		return result;
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -159,7 +170,8 @@ public class Message implements Comparable<Message>{
 	}
 
 	public int compareTo(Message another) {
-		if (another == null) return 1;
+		if (another == null)
+			return 1;
 		// sort descending, most recent first
 		return another.date.compareTo(date);
 	}

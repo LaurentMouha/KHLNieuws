@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<color name="KHLRED">#95111D</color>
+	<color name="KHLBLACK">#333333</color>
+	<dimen name="DEFAULT_TEXTSIZE">17sp</dimen>
+	<color name="KHLYELLOW">#fff786</color>
+	<color name="KHLPINK">#bf10b1</color>
+	<color name="KHLBLUE">#b3dde5</color>
+</resources>

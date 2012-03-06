@@ -3,5 +3,9 @@
 
     <string name="hello">Hello World, KHLNieuwsActivity!</string>
     <string name="app_name">KHLNieuws</string>
-
+    <string name="infooud">Dag! Als je deze melding ziet betekent het dat je nog geen persoonlijke RSS link hebt. Hiervoor zal je moeten inloggen op portaal via deze app. Klik op ok om te starten!</string>
+	<string name="info">Welkom bij KHLnieuws. \n  - Klik op Setup om je persoonlijke link af te halen \n  - Klik op Reset om je link te resetten \n  - Klik op RSS als je je link hebt en naar de mededelingen wilt gaan </string>
+	<string name="setup">Setup</string>
+	<string name="rss">RSS</string>
+	<string name="reset">Reset</string>
 </resources>
